@@ -9,7 +9,7 @@ static public class GameContent
 
     public static LinkedList<PartyCharacter> partyCharacters;
 
-    static public class CharacterClassID
+    public static class CharacterClassID
     {
         public const int Fighter = 1;
         public const int BlackMage = 2;
@@ -34,7 +34,7 @@ static public class GameContent
 
     }
 
-    static public class EquipmentID
+    public static class EquipmentID
     {
         public const int BigSword = 1;
         public const int ShortSword = 2;
@@ -80,7 +80,7 @@ static public class GameContent
 
     }
 
-    static public void RerollParty()
+    public static void RerollParty()
     {
         GameContent.partyCharacters = new LinkedList<PartyCharacter>();
 
@@ -256,17 +256,17 @@ static public class GameContent
         }
     }
 
-    static public void RefreshUI()
+    public static void RefreshUI()
     {
         systemManager.GetComponent<SystemManager>().RefreshUI();
     }
 
-    static public void SetSystemManager(GameObject SystemManager)
+    public static void SetSystemManager(GameObject SystemManager)
     {
         systemManager = SystemManager;
     }
 
-    static public string GetPartyNameFromInput()
+    public static string GetPartyNameFromInput()
     {
         return systemManager.GetComponent<SystemManager>().GetPartyNameFromInput();
     }

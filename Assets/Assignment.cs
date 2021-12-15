@@ -1,4 +1,3 @@
-
 /*
 This RPG data streaming assignment was created by Fernando Restituto.
 Pixel RPG characters created by Sean Browning.
@@ -7,26 +6,35 @@ Pixel RPG characters created by Sean Browning.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
+
+using System.IO;
 
 #region Assignment Instructions
 
 /*  Hello!  Welcome to your first lab :)
+
 Wax on, wax off.
+
     The development of saving and loading systems shares much in common with that of networked gameplay development.  
     Both involve developing around data which is packaged and passed into (or gotten from) a stream.  
     Thus, prior to attacking the problems of development for networked games, you will strengthen your abilities to develop solutions using the easier to work with HD saving/loading frameworks.
+
     Try to understand not just the framework tools, but also, 
     seek to familiarize yourself with how we are able to break data down, pass it into a stream and then rebuild it from another stream.
+
+
 Lab Part 1
+
     Begin by exploring the UI elements that you are presented with upon hitting play.
     You can roll a new party, view party stats and hit a save and load button, both of which do nothing.
     You are challenged to create the functions that will save and load the party data which is being displayed on screen for you.
+
     Below, a SavePartyButtonPressed and a LoadPartyButtonPressed function are provided for you.
     Both are being called by the internal systems when the respective button is hit.
     You must code the save/load functionality.
     Access to Party Character data is provided via demo usage in the save and load functions.
+
     The PartyCharacter class members are defined as follows.  */
 
 public partial class PartyCharacter
@@ -42,15 +50,24 @@ public partial class PartyCharacter
 
     public LinkedList<int> equipment;
 
+    public LinkedList<int> affliction;
+
+    public LinkedList<int> otherThing;
+
+    //public bool isAntiMasker = true;
+
 }
 
 
 /*
     Access to the on screen party data can be achieved via …..
+
     Once you have loaded party data from the HD, you can have it loaded on screen via …...
+
     These are the stream reader/writer that I want you to use.
     https://docs.microsoft.com/en-us/dotnet/api/system.io.streamwriter
     https://docs.microsoft.com/en-us/dotnet/api/system.io.streamreader
+
     Alright, that’s all you need to get started on the first part of this assignment, here are your functions, good luck and journey well!
 */
 
@@ -60,70 +77,90 @@ public partial class PartyCharacter
 
 #region Assignment Part 1
 
-
-//save party data using csv
 static public class AssignmentPart1
 {
 
     const int PartyCharacterSaveDataSignifier = 0;
-    const int PartyCharacterEquipmentSaveDataSignifier = 1;
+    const int EquipmentSaveDataSignifier = 1;
+    const int AfflictionSaveDataSignifier = 2;
+
 
     static public void SavePartyButtonPressed()
     {
-        StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + "Party.txt");
 
-        foreach (PartyCharacter pc in GameContent.partyCharacters)
-        {
-            //Debug.Log("PC class id == " + pc.classID);
+        //StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + "OurBelovedSaveFile.txt");
 
-            sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
-                         + "," + pc.mana
-                         + "," + pc.strength
-                         + "," + pc.agility
-                         + "," + pc.wisdom);
+        //Debug.Log("start of loop");
 
-            foreach (int equip in pc.equipment)
-            {
-                sw.WriteLine(PartyCharacterEquipmentSaveDataSignifier + "," + equip);
-            }
+        //foreach (PartyCharacter pc in GameContent.partyCharacters)
+        //{
 
-        }
+        //    sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health 
+        //    + "," + pc.mana + "," + pc.strength
+        //    + "," + pc.agility + "," + pc.wisdom);
 
-        sw.Close();
+        //    //pc.equipment
+
+        //    foreach(int equipID in pc.equipment)
+        //    {
+        //        sw.WriteLine(EquipmentSaveDataSignifier + "," + equipID);
+        //    }
+
+
+        //}
+
+        //sw.Close();
+
+        //Debug.Log("end of loop");
     }
 
     static public void LoadPartyButtonPressed()
     {
 
-        GameContent.partyCharacters.Clear();
 
-        StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + "Party.txt");
+        string path = Application.dataPath + Path.DirectorySeparatorChar + "OurBelovedSaveFile.txt";
 
-        string line;
-        while ((line = sr.ReadLine()) != null)
+        if (File.Exists(path))
         {
-            Debug.Log(line);
+            GameContent.partyCharacters.Clear();
 
-            string[] csv = line.Split(',');
+            string line = "";
+            StreamReader sr = new StreamReader(path);
 
-            int signifier = int.Parse(csv[0]);
-
-            if (signifier == PartyCharacterSaveDataSignifier)
+            while ((line = sr.ReadLine()) != null)
             {
-                PartyCharacter pc = new PartyCharacter(int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]));
-                GameContent.partyCharacters.AddLast(pc);
-            }
-            else if (signifier == PartyCharacterEquipmentSaveDataSignifier)
-            {
-                GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[1]));
-            }
+                string[] csv = line.Split(',');
 
+                // foreach (string i in csv)
+                //     Debug.Log(i);
+
+                // Debug.Log(line);
+
+                int saveDataSignifier = int.Parse(csv[0]);
+
+                if (saveDataSignifier == PartyCharacterSaveDataSignifier)
+                {
+                    PartyCharacter pc = new PartyCharacter(int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]),
+                        int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]));
+
+                    GameContent.partyCharacters.AddLast(pc);
+                }
+                else if (saveDataSignifier == EquipmentSaveDataSignifier)
+                {
+                    GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[1]));
+                    //GameContent.partyCharacters.equipment.Last.Value.AddLast(int.Parse(csv[1]))
+                }
+                else if (saveDataSignifier == AfflictionSaveDataSignifier)
+                {
+                    //load affliction data
+                }
+
+
+
+            }
         }
-
         GameContent.RefreshUI();
-
     }
-
 }
 
 
@@ -132,247 +169,317 @@ static public class AssignmentPart1
 
 #region Assignment Part 2
 
-//  Before Proceeding!
-//  To inform the internal systems that you are proceeding onto the second part of this assignment,
-//  change the below value of AssignmentConfiguration.PartOfAssignmentInDevelopment from 1 to 2.
-//  This will enable the needed UI/function calls for your to proceed with your assignment.
 static public class AssignmentConfiguration
 {
     public const int PartOfAssignmentThatIsInDevelopment = 2;
 }
 
-/*
-In this part of the assignment you are challenged to expand on the functionality that you have already created.  
-    You are being challenged to save, load and manage multiple parties.
-    You are being challenged to identify each party via a string name (a member of the Party class).
-To aid you in this challenge, the UI has been altered.  
-    The load button has been replaced with a drop down list.  
-    When this load party drop down list is changed, LoadPartyDropDownChanged(string selectedName) will be called.  
-    When this drop down is created, it will be populated with the return value of GetListOfPartyNames().
-    GameStart() is called when the program starts.
-    For quality of life, a new SavePartyButtonPressed() has been provided to you below.
-    An new/delete button has been added, you will also find below NewPartyButtonPressed() and DeletePartyButtonPressed()
-Again, you are being challenged to develop the ability to save and load multiple parties.
-    This challenge is different from the previous.
-    In the above challenge, what you had to develop was much more directly named.
-    With this challenge however, there is a much more predicate process required.
-    Let me ask you,
-        What do you need to program to produce the saving, loading and management of multiple parties?
-        What are the variables that you will need to declare?
-        What are the things that you will need to do?  
-    So much of development is just breaking problems down into smaller parts.
-    Take the time to name each part of what you will create and then, do it.
-Good luck, journey well.
-*/
-
 static public class AssignmentPart2
 {
+    //const int PartyCharacterSaveDataSignifier = 0;
+    //const int EquipmentSaveDataSignifier = 1;
 
 
-    const int PartyCharacterSaveDataSignifier = 0;
-    const int PartyCharacterEquipmentSaveDataSignifier = 1;
+    public const string PartyMetaFile = "PartyIndicesAndNames.txt"; // okay
 
+    private static LinkedList<PartySaveData> parties;
+    private static uint lastUsedIndex;
 
-    const int LastUsedIndexSignifier = 1;
-    const int IndexAndNameSignifier = 2;
-
-
-    static int lastIndexUsed;
-    static List<string> partyNames;
-    static LinkedList<NameAndIndex> nameAndIndices;
-
-    const string IndexFilePath = "indices.txt";
-
-
-    //
     static public void GameStart()
     {
 
-        Debug.Log("Game Start");
-
-        nameAndIndices = new LinkedList<NameAndIndex>();
-
-        if (File.Exists(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath))
-        {
-            StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath);
-
-            string line;
-            while ((line = sr.ReadLine()) != null)
-            {
-                Debug.Log(line);
-                string[] csv = line.Split(',');
-                int signifier = int.Parse(csv[0]);
-
-                if (signifier == LastUsedIndexSignifier)
-                {
-                    lastIndexUsed = int.Parse(csv[1]);
-                }
-                else if (signifier == IndexAndNameSignifier)
-                {
-                    nameAndIndices.AddLast(new NameAndIndex(int.Parse(csv[1]), csv[2]));
-                }
-            }
-        }
-
-        partyNames = new List<string>();
-
-
-        foreach (NameAndIndex nameAndIndex in nameAndIndices)
-        {
-            partyNames.Add(nameAndIndex.name);
-        }
-
         GameContent.RefreshUI();
+
+        LoadPartyMetaData();
+
+        Debug.Log("start");
 
     }
 
     static public List<string> GetListOfPartyNames()
     {
-        return partyNames;
+        if (parties == null)
+            return new List<string>();
 
+        List<string> pNames = new List<string>();
+
+        foreach (PartySaveData psd in parties)
+        {
+            pNames.Add(psd.name);
+        }
+
+        return pNames;
     }
 
     static public void LoadPartyDropDownChanged(string selectedName)
     {
 
-        GameContent.partyCharacters.Clear();
-
-        int indexToLoad = -1;
-
-        foreach (NameAndIndex nameAndIndex in nameAndIndices)
+        foreach (PartySaveData psd in parties)
         {
-            if (nameAndIndex.name == selectedName)
-                indexToLoad = nameAndIndex.index;
-        }
-
-        StreamReader sr = new StreamReader(Application.dataPath + Path.DirectorySeparatorChar + indexToLoad + ".txt");
-
-        string line;
-        while ((line = sr.ReadLine()) != null)
-        {
-            Debug.Log(line);
-
-            string[] csv = line.Split(',');
-
-            int signifier = int.Parse(csv[0]);
-
-            if (signifier == PartyCharacterSaveDataSignifier)
-            {
-                PartyCharacter pc = new PartyCharacter(int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]));
-                GameContent.partyCharacters.AddLast(pc);
-            }
-            else if (signifier == PartyCharacterEquipmentSaveDataSignifier)
-            {
-                GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[1]));
-            }
-
+            if (selectedName == psd.name)
+                psd.LoadParty();
         }
 
         GameContent.RefreshUI();
-        Debug.Log("Load " + selectedName);
+        Debug.Log("l " + selectedName);
+
     }
 
     static public void SavePartyButtonPressed()
     {
+        lastUsedIndex++;
+        PartySaveData p = new PartySaveData(lastUsedIndex, GameContent.GetPartyNameFromInput());
+        parties.AddLast(p);
 
-        bool isUniqueName = true;
+        SavePartyMetaData();
 
-        foreach (NameAndIndex nameAndIndex in nameAndIndices)
-        {
-            if (nameAndIndex.name == GameContent.GetPartyNameFromInput())
-            {
-                SaveParty(Application.dataPath + Path.DirectorySeparatorChar + nameAndIndex.index + ".txt");
-                isUniqueName = false;
-            }
-        }
-
-        if (isUniqueName)
-        {
-            lastIndexUsed++;
-            SaveParty(Application.dataPath + Path.DirectorySeparatorChar + lastIndexUsed + ".txt");
-            nameAndIndices.AddLast(new NameAndIndex(lastIndexUsed, GameContent.GetPartyNameFromInput()));
-        }
-
+        p.SaveParty();
 
         GameContent.RefreshUI();
-        Debug.Log("saving");
+        Debug.Log("s");
 
-
-        SaveIndexManagementFile();
     }
 
     static public void NewPartyButtonPressed()
     {
-        Debug.Log("create new");
-
-        SaveIndexManagementFile();
+        Debug.Log("n");
     }
 
     static public void DeletePartyButtonPressed()
     {
-        Debug.Log("Delete Current");
+        Debug.Log("d");
     }
 
-    static public void SaveIndexManagementFile()
+    static public void SavePartyMetaData()
     {
+        StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + PartyMetaFile);
 
-        StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + IndexFilePath);
 
-        sw.WriteLine(LastUsedIndexSignifier + "," + lastIndexUsed);
-        //Debug.Log("1," + lastIndexUsed);
+        sw.WriteLine("1," + lastUsedIndex);
 
-        foreach (NameAndIndex nameAndIndex in nameAndIndices)
+
+        foreach (PartySaveData pData in parties)
         {
-            sw.WriteLine(IndexAndNameSignifier + "," + nameAndIndex.index + "," + nameAndIndex.name);
+            sw.WriteLine("2," + pData.index + "," + pData.name);
         }
 
         sw.Close();
 
     }
 
-    static public void SaveParty(string fileName)
+    static public void LoadPartyMetaData()
     {
+        parties = new LinkedList<PartySaveData>();
 
-        StreamWriter sw = new StreamWriter(fileName);
+        string path = Application.dataPath + Path.DirectorySeparatorChar + PartyMetaFile;
 
+        if (File.Exists(path))
+        {
+            string line = "";
+            StreamReader sr = new StreamReader(path);
+
+            while ((line = sr.ReadLine()) != null)
+            {
+                string[] csv = line.Split(',');
+
+                //if(int.Parse(csv[0]))
+
+                int saveDataSignifier = int.Parse(csv[0]);
+
+                if (saveDataSignifier == 1)
+                    lastUsedIndex = uint.Parse(csv[1]);
+                else if (saveDataSignifier == 2)
+                    parties.AddLast(new PartySaveData(uint.Parse(csv[1]), csv[2]));
+            }
+            sr.Close();
+        }
+    }
+
+    static public void SendPartyDataToServer(NetworkedClient networkedClient)
+    {
+        // const int PartyCharacterSaveDataSignifier = 0;
+        // const int EquipmentSaveDataSignifier = 1;
+
+        LinkedList<string> data = DataManager.SerializedParty(GameContent.partyCharacters);
+
+        // foreach (PartyCharacter pc in GameContent.partyCharacters)
+        // {
+        //     data.AddLast(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
+        //                  + "," + pc.mana + "," + pc.strength
+        //                  + "," + pc.agility + "," + pc.wisdom);
+        //
+        //     foreach (var equipID in pc.equipment)
+        //     {
+        //         data.AddLast(EquipmentSaveDataSignifier + "," + equipID);
+        //     }
+        // }
+
+        networkedClient.SendMessageToHost(ClientToServerSignifiers.PartyDataTransferStart + "");
+
+        foreach (string d in data)
+            networkedClient.SendMessageToHost(ClientToServerSignifiers.PartyDataTransferStart + "," + d);
+
+        networkedClient.SendMessageToHost(ClientToServerSignifiers.PartyDataTransferEnd + "");
+    }
+
+    static public void LoadPartyFromReceivedData(LinkedList<string> data)
+    {
+        GameContent.partyCharacters.Clear();
+        GameContent.partyCharacters = DataManager.DeserializeParty(data);
+        // const int PartyCharacterSaveDataSignifier = 0;
+        // const int EquipmentSaveDataSignifier = 1;
+
+        // foreach (string line in data)
+        // {
+        //     string[] csv = line.Split(',');
+        //
+        //     int saveDataSignifier = int.Parse(csv[0]);
+        //
+        //     if (saveDataSignifier == PartyCharacterSaveDataSignifier)
+        //     {
+        //         PartyCharacter pc = new PartyCharacter(int.Parse(csv[2]), int.Parse(csv[3]), int.Parse(csv[4]),
+        //             int.Parse(csv[5]), int.Parse(csv[6]), int.Parse(csv[7]));
+        //
+        //         GameContent.partyCharacters.AddLast(pc);
+        //     }
+        //     else if (saveDataSignifier == EquipmentSaveDataSignifier)
+        //     {
+        //         GameContent.partyCharacters.Last.Value.equipment.AddLast(int.Parse(csv[2]));
+        //         //GameContent.partyCharacters.equipment.Last.Value.AddLast(int.Parse(csv[1]))
+        //     }
+        // }
+        GameContent.RefreshUI();
+    }
+}
+
+public static class ClientToServerSignifiers
+{
+    public const int JoinSharingRoom = 1;
+    public const int PartyDataTransferStart = 101;
+    public const int PartyDataTransfer = 102;
+    public const int PartyDataTransferEnd = 103;
+}
+
+public static class ServerToClientSignifiers
+{
+
+}
+#endregion
+
+class PartySaveData
+{
+    // const int PartyCharacterSaveDataSignifier = 0;
+    // const int EquipmentSaveDataSignifier = 1;
+
+    public uint index; // we need the extra numbers!
+    public string name;
+
+    public PartySaveData(uint index, string name)
+    {
+        this.index = index;
+        this.name = name;
+    }
+
+    public void SaveParty()
+    {
+        StreamWriter sw = new StreamWriter(Application.dataPath + Path.DirectorySeparatorChar + index + ".txt");
+
+        Debug.Log("start of loop");
+
+        LinkedList<string> data = DataManager.SerializedParty(GameContent.partyCharacters);
+
+        foreach (string line in data)
+        {
+            sw.WriteLine(line);
+        }
+
+        // foreach (PartyCharacter pc in GameContent.partyCharacters)
+        // {
+        //     sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
+        //     + "," + pc.mana + "," + pc.strength
+        //     + "," + pc.agility + "," + pc.wisdom);
+        //
+        //     foreach (int equipID in pc.equipment)
+        //     {
+        //         sw.WriteLine(EquipmentSaveDataSignifier + "," + equipID);
+        //     }
+        // }
+
+        sw.Close();
+        Debug.Log("end of loop");
+    }
+
+    public void LoadParty()
+    {
+        string path = Application.dataPath + Path.DirectorySeparatorChar + index + ".txt";
+
+        if (File.Exists(path))
+        {
+            GameContent.partyCharacters.Clear();
+
+            string line = "";
+            StreamReader sr = new StreamReader(path);
+            LinkedList<string> data = new LinkedList<string>();
+
+            while ((line = sr.ReadLine()) != null)
+                data.AddLast(line);
+
+            sr.Close();
+
+            GameContent.partyCharacters = DataManager.DeserializeParty(data);
+
+        }
+        GameContent.RefreshUI();
+    }
+}
+
+static public class DataManager
+{
+    const int PartyCharacterSaveDataSignifier = 0;
+    const int EquipmentSaveDataSignifier = 1;
+
+    static public LinkedList<string> SerializedParty(LinkedList<PartyCharacter> party)
+    {
+        LinkedList<string> data = new LinkedList<string>();
         foreach (PartyCharacter pc in GameContent.partyCharacters)
         {
-            //Debug.Log("PC class id == " + pc.classID);
+            data.AddLast(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
+                          + "," + pc.mana + "," + pc.strength
+                          + "," + pc.agility + "," + pc.wisdom);
 
-            sw.WriteLine(PartyCharacterSaveDataSignifier + "," + pc.classID + "," + pc.health
-            + "," + pc.mana
-            + "," + pc.strength
-            + "," + pc.agility
-            + "," + pc.wisdom);
-
-            foreach (int equip in pc.equipment)
+            foreach (int equipID in pc.equipment)
             {
-                sw.WriteLine(PartyCharacterEquipmentSaveDataSignifier + "," + equip);
+                data.AddLast(EquipmentSaveDataSignifier + "," + equipID);
             }
         }
 
-        sw.Close();
-
+        return data;
     }
 
-}
-
-
-public class NameAndIndex
-{
-    public string name;
-    public int index;
-
-    public NameAndIndex(int Index, string Name)
+    static public LinkedList<PartyCharacter> DeserializeParty(LinkedList<string> data)
     {
-        name = Name;
-        index = Index;
+        LinkedList<PartyCharacter> party = new LinkedList<PartyCharacter>();
+
+        foreach (string line in data)
+        {
+            string[] csv = line.Split(',');
+
+            int saveDataSignifier = int.Parse(csv[0]);
+
+            if (saveDataSignifier == PartyCharacterSaveDataSignifier)
+            {
+                PartyCharacter pc = new PartyCharacter(int.Parse(csv[1]), int.Parse(csv[2]), int.Parse(csv[3]),
+                    int.Parse(csv[4]), int.Parse(csv[5]), int.Parse(csv[6]));
+
+                party.AddLast(pc);
+            }
+            else if (saveDataSignifier == EquipmentSaveDataSignifier)
+            {
+                party.Last.Value.equipment.AddLast(int.Parse(csv[1]));
+                //GameContent.partyCharacters.equipment.Last.Value.AddLast(int.Parse(csv[1]))
+            }
+        }
+
+        return party;
     }
-
 }
-
-#endregion
-
-
-
-
